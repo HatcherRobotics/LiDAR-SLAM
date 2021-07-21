@@ -1,0 +1,28 @@
+pcl::PointCloud<pcl::PointXYZI> KittiVelodyneToPointCloud(const std::string lidarDataPath)
+{
+   std::ifstream lidarDataFile(lidarDataPath, ifstream::in | ifstream::binary);
+   lidarDataFile.seekg(0, ios::end);
+   const size_t numElements = lidarDataFile.tellg() / sizeof(float);
+   lidarDataFile.seekg(0, ios::beg);
+
+   vector<float> lidarDataBuffer(numElements);
+   lidarDataFile.read(reinterpret_cast<char*>(&lidarDataBuffer[0]),numElements*sizeof(float));
+   
+   std::cout<<"totally: "<<lidarDataBuffer.size() / 4.0 << "points in this lidar frame \n";
+   std::vector<Eigen::Vector3d> lidarPoints;
+
+   pcl::PointCloud<pcl::PointXYZI> laserCloud;
+   
+   for (size_t i=0; i < lidarDataBuffer.size(); i+=4)
+   {
+       lidarPoints.emplace_back(lidarDataBuffer[i], lidarDataBuffer[i+1], lidarDataBuffer[i+2]);
+       pcl::PointXYZI point;
+       point.x = lidarDataBuffer[i];
+       point.y = lidarDataBuffer[i+1];
+       point.z = lidarDataBuffer[i+2];
+       point.intensity = lidarDataBuffer[i+3];
+       laserCloud.push_back(point);
+   }
+
+   return laserCloud;
+}
