@@ -1,0 +1,1 @@
+`rosrun kitti_visualization --lidar_folder_path` Follow with your path
